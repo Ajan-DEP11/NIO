@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -16,11 +17,24 @@ public class Demo5 {
        try( AsynchronousFileChannel channel = AsynchronousFileChannel.open(path, StandardOpenOption.READ)){
         ByteBuffer buffer = ByteBuffer.allocate(1024);
         Future<Integer> read =channel.read(buffer, 0);
-        CompletableFuture<Void> completableFuture = new CompletableFuture<>();
-        completableFuture.runAsync(() ->{
-            
+        CompletableFuture<Integer> completableFuture = new CompletableFuture<>();
+        completableFuture.supplyAsync(() ->{
+            try{
+                read.get();
+                buffer.flip();
+                return Charset.defaultCharset().decode(buffer).toString();
+
+            }catch(Exception e){
+                throw new RuntimeException();
+            }
+
 
         });
+        completableFuture.thenAccept(System.out :: println);
+        completableFuture.exceptionally(t -> {
+            t.printStackTrace();return null;
+        });
+         
         //System.out.println(read);
         //lets do somthing here untill read the file 
         System.out.println("i can execute this code ");
