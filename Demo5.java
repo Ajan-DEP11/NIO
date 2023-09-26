@@ -14,13 +14,13 @@ public class Demo5 {
     public static void main(String[] args) throws IOException {
         
         Path path = Paths.get("something.txt");
-       try( AsynchronousFileChannel channel = AsynchronousFileChannel.open(path, StandardOpenOption.READ)){
+       try( var channel = AsynchronousFileChannel.open(path, StandardOpenOption.READ)){
         ByteBuffer buffer = ByteBuffer.allocate(1024);
-        Future<Integer> read =channel.read(buffer, 0);
-        CompletableFuture<Integer> completableFuture = new CompletableFuture<>();
-        completableFuture.supplyAsync(() ->{
+        Future<Integer> future =channel.read(buffer, 0);
+        CompletableFuture<String> completableFuture = new CompletableFuture<>();
+        CompletableFuture.supplyAsync(() ->{
             try{
-                read.get();
+                future.get();
                 buffer.flip();
                 return Charset.defaultCharset().decode(buffer).toString();
 
@@ -30,14 +30,16 @@ public class Demo5 {
 
 
         });
-        completableFuture.thenAccept(System.out :: println);
-        completableFuture.exceptionally(t -> {
-            t.printStackTrace();return null;
-        });
+       
          
         //System.out.println(read);
         //lets do somthing here untill read the file 
         System.out.println("i can execute this code ");
+
+         completableFuture.thenAccept(System.out :: println);
+        completableFuture.exceptionally(t -> {
+            t.printStackTrace();return null;
+        });
        }
     }
 }
