@@ -1,0 +1,2 @@
+Image fxImage = imv.getImage();
+        BufferedImage bufImage = SwingFXUtils.fromFXImage(fxImage, null);
